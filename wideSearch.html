@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        #canvas {
+            background-color: #f0f0f0;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="canvas" width="800" height="800" />
+</body>
+<script>
+    let grid_width = 5;
+    let canvas = document.getElementById('canvas')
+    let ctx = canvas.getContext('2d');
+    let landColor = 'darkgreen'; // 大陆颜色
+    let seaColor = 'lightgreen'; // 海洋颜色
+    let visitedColor = 'green'; // 已经遍历过的点的元素
+    let pointSize = 150;  // 画板矩阵宽度与高度
+    let landSize = 60;  // 随机的大陆的点
+
+    // 用0表示海洋，用1表示大陆，用2 表示已经访问过的点
+    window.onload = function () {
+        let grid = Array.from({ length: pointSize }, () => Array.from({ length: pointSize }, () => 0))
+        for (let i = 0; i < landSize; i++) {
+            let randomx = parseInt(Math.random() * pointSize)
+            let randomy = parseInt(Math.random() * pointSize)
+            grid[randomx][randomy] = 1;
+        }
+        renderGrid(grid)
+        maxDistance(grid)
+    }
+    var maxDistance = function (grid) {
+        let distance = -1;
+        let queen = [];
+        let mapSize = grid.length;
+        for (let i = 0; i < mapSize; i++) {
+            for (let j = 0; j < mapSize; j++) {
+                if (grid[i][j]) {
+                    queen.push([i, j])
+                }
+            }
+        }
+        if (!queen.length || queen.length === mapSize * mapSize) {
+            return -1;
+        }
+
+        let timer = setInterval(function () {
+            if (queen.length) {
+                let pointLen = queen.length;
+                distance++;
+                for (let i = 0; i < pointLen; i++) {
+                    let position = queen.shift();
+                    let x = position[0];  // 大陆的横坐标
+                    let y = position[1];  // 大陆的纵坐标
+                    // 向左
+                    if (x > 0 && grid[x - 1][y] === 0) {
+                        queen.push([x - 1, y])
+                        grid[x - 1][y] = 2;
+                    }
+                    //向右
+                    if (x < mapSize - 1 && grid[x + 1][y] === 0) {
+                        queen.push([x + 1, y])
+                        grid[x + 1][y] = 2;
+                    }
+                    //向下
+                    if (y < mapSize - 1 && grid[x][y + 1] === 0) {
+                        queen.push([x, y + 1])
+                        grid[x][y + 1] = 2;
+                    }
+                    //向上
+                    if (y > 0 && grid[x][y - 1] === 0) {
+                        queen.push([x, y - 1])
+                        grid[x][y - 1] = 2;
+                    }
+                    // console.log(grid)
+                }
+                renderGrid(grid)
+            }else{
+                clearInterval(timer)
+            }
+        }, 50)
+    };
+
+    function drawLine(grid) {
+        let len = grid.length;
+        for (let i = 0; i <= len; i++) {
+            ctx.moveTo(i * grid_width, 0);
+            ctx.lineTo(i * grid_width, len * grid_width);
+            ctx.stroke();
+        }
+        for (let i = 0; i <= len; i++) {
+            ctx.moveTo(0, i * grid_width);
+            ctx.lineTo(len * grid_width, i * grid_width);
+            ctx.stroke();
+        }
+        ctx.save();
+    }
+
+    function renderGrid(grid) {
+        let len = grid.length;
+
+        for (let i = 0; i < len; i++) {
+            for (let j = 0; j < len; j++) {
+                ctx.beginPath();
+                ctx.moveTo(j * grid_width, i * grid_width);
+                ctx.rect(j * grid_width, i * grid_width, grid_width, grid_width);
+                if (grid[i][j] === 0) {
+                    ctx.fillStyle = seaColor;
+                } else if (grid[i][j] === 1) {
+                    ctx.fillStyle = landColor;
+                } else {
+                    ctx.fillStyle = visitedColor;
+                }
+                ctx.fill()
+                ctx.save()
+            }
+        }
+    }
+</script>
+
+</html>
