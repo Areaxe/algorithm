@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>广度搜索</title>
+    <style>
+        body,
+        html {
+            padding: 0;
+            margin: 0;
+        }
+
+        #canvas {
+            background-color: #f0f0f0;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="canvas" width="600" height="600" />
+</body>
+<script>
+    let grid_width = 10; // 一个结点的宽度
+    let canvas = document.getElementById('canvas')
+    let ctx = canvas.getContext('2d');
+    let originColor = 'darkgreen'; // 搜索源点颜色
+    let targetColor = 'lightgreen'; // 被搜索点颜色
+    let visitedColor = 'green'; // 已经遍历过的点的元素
+    let dataWidth = 60;  // 画板矩阵一行或者一列的点数
+    let landSize = 12;
+    let interval = 50;
+    // 源点个数
+
+    // 0表示待搜索的点，1表示源点，用2 表示已经访问过的点
+    let grid = Array.from({ length: dataWidth }, () => Array.from({ length: dataWidth }, () => 0))
+    window.onload = function () {
+        // 初始化数据
+        canvas.style.backgroundColor = targetColor;
+        let originPositions = [];
+        for (let i = 0; i < landSize; i++) {
+            let randomx = parseInt(Math.random() * dataWidth)
+            let randomy = parseInt(Math.random() * dataWidth)
+            //  生成源点
+            grid[randomx][randomy] = 1;
+            originPositions.push([randomx, randomy]);
+        }
+        // initRender(grid,targetColor);  // 将所有点设置为被搜索的点
+        ctx.beginPath();
+        renderGrid(originPositions, originColor);
+        ctx.save();
+        wideSearch(originPositions)
+    }
+
+    function wideSearch(originPositions) {
+        // let distance = -1;
+        let queen = originPositions;  // 待搜索队列
+        let searchWidth = grid.length; // 搜索范围
+
+        if (!queen.length || queen.length === searchWidth * searchWidth) {
+            return -1;
+        }
+
+        let timer = setInterval(function () {
+            let nextPosition = []; // 存储接下来将要渲染的结点位置 i j
+            // 如果队列有结点
+            if (queen.length) {
+                let pointLen = queen.length;
+                for (let i = 0; i < pointLen; i++) {
+                    let position = queen.shift();
+                    let x = position[0];  // 被搜索结点的横坐标
+                    let y = position[1];  // 被搜索结点的纵坐标
+                    // 向左搜索
+                    if (x > 0 && grid[x - 1][y] === 0) {
+                        queen.push([x - 1, y])
+                        grid[x - 1][y] = 2;
+                    }
+                    //向右搜索
+                    if (x < searchWidth - 1 && grid[x + 1][y] === 0) {
+                        queen.push([x + 1, y])
+                        grid[x + 1][y] = 2;
+                    }
+                    //向下搜索
+                    if (y < searchWidth - 1 && grid[x][y + 1] === 0) {
+                        queen.push([x, y + 1])
+                        grid[x][y + 1] = 2;
+                    }
+                    //向上搜索
+                    if (y > 0 && grid[x][y - 1] === 0) {
+                        queen.push([x, y - 1])
+                        grid[x][y - 1] = 2;
+                    }
+                }
+                // 渲染
+                renderGrid(queen, visitedColor);
+            } else {
+                clearInterval(timer)
+            }
+        }, interval)
+    };
+
+    // 渲染访问点
+    function renderGrid(positionList, color) {
+        let len = grid.length;
+        for (let i = 0; i < positionList.length; i++) {
+            let [x, y] = positionList[i];
+            ctx.beginPath();
+            ctx.moveTo(y * grid_width, x * grid_width);
+            ctx.rect(y * grid_width, x * grid_width, grid_width, grid_width);
+            ctx.fillStyle = color;
+            ctx.fill()
+            ctx.save()
+        }
+    }
+</script>
+
+</html>
