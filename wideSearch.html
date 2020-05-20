@@ -22,13 +22,13 @@
     <canvas id="canvas" width="600" height="600" />
 </body>
 <script>
-    let grid_width = 10; // 一个结点的宽度
+    let grid_width = 5; // 一个结点的宽度
     let canvas = document.getElementById('canvas')
     let ctx = canvas.getContext('2d');
     let originColor = 'darkgreen'; // 搜索源点颜色
     let targetColor = 'lightgreen'; // 被搜索点颜色
     let visitedColor = 'green'; // 已经遍历过的点的元素
-    let dataWidth = 60;  // 画板矩阵一行或者一列的点数
+    let dataWidth = 120;  // 画板矩阵一行或者一列的点数
     let landSize = 12;
     let interval = 50;
     // 源点个数
