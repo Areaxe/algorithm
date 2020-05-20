@@ -6,6 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>广度搜索</title>
     <style>
+        body,
+        html {
+            padding: 0;
+            margin: 0;
+        }
+
         #canvas {
             background-color: #f0f0f0;
         }
@@ -13,53 +19,54 @@
 </head>
 
 <body>
-    <canvas id="canvas" width="800" height="800" />
+    <canvas id="canvas" width="600" height="600" />
 </body>
 <script>
-    let grid_width = 5; // 一个结点的宽度
+    let grid_width = 10; // 一个结点的宽度
     let canvas = document.getElementById('canvas')
     let ctx = canvas.getContext('2d');
     let originColor = 'darkgreen'; // 搜索源点颜色
     let targetColor = 'lightgreen'; // 被搜索点颜色
     let visitedColor = 'green'; // 已经遍历过的点的元素
-    let dataWidth = 150;  // 画板矩阵一行或者一列的点数
-    let landSize = 60;  // 源点个数
+    let dataWidth = 60;  // 画板矩阵一行或者一列的点数
+    let landSize = 12;
+    let interval = 50;
+    // 源点个数
 
     // 0表示待搜索的点，1表示源点，用2 表示已经访问过的点
+    let grid = Array.from({ length: dataWidth }, () => Array.from({ length: dataWidth }, () => 0))
     window.onload = function () {
         // 初始化数据
-        let grid = Array.from({ length: dataWidth }, () => Array.from({ length: dataWidth }, () => 0))
+        canvas.style.backgroundColor = targetColor;
+        let originPositions = [];
         for (let i = 0; i < landSize; i++) {
             let randomx = parseInt(Math.random() * dataWidth)
             let randomy = parseInt(Math.random() * dataWidth)
             //  生成源点
             grid[randomx][randomy] = 1;
+            originPositions.push([randomx, randomy]);
         }
-        
-        renderGrid(grid)
-        wideSearch(grid)
+        // initRender(grid,targetColor);  // 将所有点设置为被搜索的点
+        ctx.beginPath();
+        renderGrid(originPositions, originColor);
+        ctx.save();
+        wideSearch(originPositions)
     }
-    function wideSearch (grid) {
+
+    function wideSearch(originPositions) {
         // let distance = -1;
-        let queen = [];  // 待搜索队列
+        let queen = originPositions;  // 待搜索队列
         let searchWidth = grid.length; // 搜索范围
-        // 源点入队
-        for (let i = 0; i < searchWidth; i++) {
-            for (let j = 0; j < searchWidth; j++) {
-                if (grid[i][j]) {
-                    queen.push([i, j])
-                }
-            }
-        }
+
         if (!queen.length || queen.length === searchWidth * searchWidth) {
             return -1;
         }
 
         let timer = setInterval(function () {
+            let nextPosition = []; // 存储接下来将要渲染的结点位置 i j
             // 如果队列有结点
             if (queen.length) {
                 let pointLen = queen.length;
-                // distance++;
                 for (let i = 0; i < pointLen; i++) {
                     let position = queen.shift();
                     let x = position[0];  // 被搜索结点的横坐标
@@ -86,33 +93,24 @@
                     }
                 }
                 // 渲染
-                renderGrid(grid)
-            }else{
+                renderGrid(queen, visitedColor);
+            } else {
                 clearInterval(timer)
             }
-        }, 50)
+        }, interval)
     };
 
-    // 渲染表格
-    function renderGrid(grid) {
+    // 渲染访问点
+    function renderGrid(positionList, color) {
         let len = grid.length;
-
-        for (let i = 0; i < len; i++) {
-            for (let j = 0; j < len; j++) {
-                ctx.beginPath();
-                ctx.moveTo(j * grid_width, i * grid_width);
-                ctx.rect(j * grid_width, i * grid_width, grid_width, grid_width);
-                //不同颜色区分源点、被访问过的点、待访问的点
-                if (grid[i][j] === 0) {
-                    ctx.fillStyle = targetColor;
-                } else if (grid[i][j] === 1) {
-                    ctx.fillStyle = originColor;
-                } else {
-                    ctx.fillStyle = visitedColor;
-                }
-                ctx.fill()
-                ctx.save()
-            }
+        for (let i = 0; i < positionList.length; i++) {
+            let [x, y] = positionList[i];
+            ctx.beginPath();
+            ctx.moveTo(y * grid_width, x * grid_width);
+            ctx.rect(y * grid_width, x * grid_width, grid_width, grid_width);
+            ctx.fillStyle = color;
+            ctx.fill()
+            ctx.save()
         }
     }
 </script>
