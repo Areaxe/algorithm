@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="canvas" />
+  <script src="./node.js"></script>
+  <script>
+    let canvas = document.getElementById('canvas');
+    canvas.width = document.body.offsetWidth;
+    canvas.height = document.body.offsetHeight;
+    let ctx = canvas.getContext('2d');
+    let treeList = {
+      title: 'ade',
+      childs: [
+        {
+          title: '1',
+          childs: [
+            { title: '11' },
+            {
+              title: '12',
+              childs: [
+                {
+                  title: '21', childs: [{
+                    title: '211', childs: [
+                      { title: '21125', content: '实际占用空间 节点包括子节点占用的宽' },
+                      { title: '21126' },
+                      { title: '21127' },
+                      { title: '21128' },
+                      { title: '21129' }
+                    ]
+                  }]
+                },
+                { title: '22' },
+                { title: '23' },
+                { title: '24' },
+              ]
+            },
+            { title: '13' },
+            { title: '14' },
+            { title: '15' },
+            { title: '16' },
+          ]
+        },
+        {
+          title: '2',
+        },
+        { title: '3' }
+      ]
+    }
+
+    window.onload = function () {
+      let tree = new Tree(canvas, ctx);  // 一棵树 功能： 提供上下文环境 提供渲染方法 确定节点X与Y渲染位置
+      let nodeList = new Node(treeList, { width: 150, height: 60 });  // 节点数据 功能： 确定各个节点所占的宽高
+      tree.render(nodeList);
+      console.log(nodeList)
+    }
+  </script>
+</body>
+
+</html>
