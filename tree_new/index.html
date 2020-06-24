@@ -63,7 +63,7 @@
 
     window.onload = function () {
       let tree = new Tree(canvas, ctx);  // 一棵树 功能： 提供上下文环境 提供渲染方法 确定节点X与Y渲染位置
-      let nodeList = new Node(treeList, { width: 150, height: 60 });  // 节点数据 功能： 确定各个节点所占的宽高
+      let nodeList = new Node(treeList, { width: 150, height: 120 });  // 节点数据 功能： 确定各个节点所占的宽高
       tree.render(nodeList);
       console.log(nodeList)
     }

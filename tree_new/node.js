@@ -10,14 +10,20 @@ function Tree (canvas, ctx, opt = {}) {
   this.titleColor = opt.titleColor || '#fff'
   this.gridColor = opt.gridColor || '#ddd' // 网格线颜色
   this.contentColor = opt.contentColor || '#666'
+  this.deepHeight = new Map()
 }
 Tree.prototype = {
   render (node) {
     // 根据节点渲染的范围，重置画布宽高
     let contentHeight = this.origin.y + node.realHeight + node.height;
-    this.canvas.height = + Math.max(contentHeight, document.body.offsetHeight);
+    this.canvas.height = Math.max(contentHeight, document.body.offsetHeight);
     this.renderBg(); // 绘制网格线
     this.renderNode(node)  // 绘制节点
+    // let maxHeight = 0;
+    // for (let value of this.deepHeight.values()) {
+    //   maxHeight = Math.max(value, maxHeight)
+    // }
+    // this.canvas.height = Math.max(maxHeight, document.body.offsetHeight);
   },
   renderNode (node) {
     if (!node.parent) {  // 如果是根节点，就初始化根节点坐标
@@ -42,20 +48,27 @@ Tree.prototype = {
     this.ctx.save();
 
     if (node.childs) {
-      let curY = node.y; // 当前元素的Y坐标
+      let curY = this.deepHeight.get(node.deep) || node.y;// 当前元素的Y坐标
       if (node.y - 20 > 0) {  // 计算元素可以上移的位置 待优化
         curY = node.y - 20;
       } else if (node.y - 20 < 0) {
         curY = node.y + 20
       }
+
+      this.deepHeight.set(node.deep, node.y + node.height + node.marginY);
       node.childs.forEach((item) => {
         item.x = node.x + node.width + node.marginX;  // 计算节点的X坐标
-        item.y = curY;  // 节点的Y坐标
         item.deep = node.deep + 1;
+        item.y = this.deepHeight.get(item.deep) || curY;  // 节点的Y坐标
         this.renderNode(item)  // 渲染节点
+
+        this.deepHeight.set(item.deep, item.y + item.height + item.marginY);
         node.createArrowTo(this.ctx, item) // 添加箭头
-        curY += item.realHeight;  // Y坐标下移，记录下一个兄弟节点的坐标
+
       })
+
+
+
     }
   },
   drawText (text, x, y, w) { // 绘制文字 换行
